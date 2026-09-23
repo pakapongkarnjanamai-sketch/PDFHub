@@ -50,7 +50,12 @@ function DrawingForm({ drawing, lookups }) {
   const { state } = useLocation()
   const [searchParams] = useSearchParams()
   const { session } = useSession()
-  const sections = useMemo(() => Object.fromEntries(lookups.sections.map((s) => [s.code, s.name])), [lookups])
+  const sections = useMemo(() => {
+    const options = drawing?.sectionCode
+      ? [...lookups.sections, { code: drawing.sectionCode, name: drawing.sectionName }]
+      : lookups.sections
+    return Object.fromEntries(options.map((s) => [s.code, s.name]))
+  }, [drawing, lookups])
 
   const [form, setForm] = useState(() => drawing ? formFrom(drawing) : emptyForm(searchParams.get('next') ?? '', searchParams.get('date') ?? todayIso()))
   const [file, setFile] = useState(null)
@@ -185,7 +190,7 @@ function DrawingForm({ drawing, lookups }) {
   const busy = busyAction !== null
   const input = (key, props = {}) => (
     <input value={form[key]} onChange={(e) => patch({ [key]: e.target.value })} aria-invalid={errors[key] ? true : undefined}
-      className={inputClassName(`w-full ${props.className ?? ''}`)} {...props} />
+      {...props} className={inputClassName(`w-full ${props.className ?? ''}`)} />
   )
 
   return (
