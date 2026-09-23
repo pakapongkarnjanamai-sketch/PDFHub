@@ -9,6 +9,7 @@ import { AppButton, IconButton } from '../../components/ui/buttons'
 import { ErrorSurface, LoadingSurface } from '../../components/ui/feedback'
 import { Field, FormSection, Page, PageHeader } from '../../components/ui/layout'
 import { ConfirmDialog } from '../../components/ui/Modal'
+import { DataGridShell } from '../../components/ui/DataGridShell'
 import { inputClassName, recordLinkClassName } from '../../components/ui/styles'
 
 export function SectionsPage() {
@@ -39,9 +40,9 @@ export function SectionsPage() {
       <AddSection onAdded={(s) => setData((rows) => [...rows, s].sort((a, b) => a.code.localeCompare(b.code)))} />
 
       {loading && !data ? <LoadingSurface /> : !data ? <ErrorSurface onRetry={retry}>{errorMessage(error)}</ErrorSurface> : (
-        <div aria-busy={refreshing} className="relative overflow-x-auto rounded-lg border border-border-subtle bg-surface-panel">
+        <DataGridShell aria-busy={refreshing} className="rounded-lg border border-border-subtle bg-surface-panel">
           <table className="w-full min-w-[640px] text-body">
-            <thead className="border-b border-border-subtle bg-surface-muted text-left text-caption text-ink-muted">
+            <thead className="sticky top-0 z-10 border-b border-border-subtle bg-surface-muted text-left text-caption text-ink-muted">
               <tr>
                 <th className="px-3 py-2.5">รหัส</th>
                 <th className="px-3 py-2.5">ชื่อ Section</th>
@@ -54,7 +55,7 @@ export function SectionsPage() {
               {data.map((s) => <SectionRow key={s.id} section={s} onSaved={replace} onDelete={() => setDeleting(s)} />)}
             </tbody>
           </table>
-        </div>
+        </DataGridShell>
       )}
       <p className="text-caption text-ink-muted">Section ที่ปิดใช้งานจะรับ PdfCode ใหม่ไม่ได้ แต่ Drawing เดิมยังค้นหาและเปิดดูได้ตามปกติ</p>
 

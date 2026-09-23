@@ -10,6 +10,7 @@ import { AppButton } from '../../components/ui/buttons'
 import { ErrorSurface, LoadingSurface } from '../../components/ui/feedback'
 import { Field, FormSection, Page, PageHeader } from '../../components/ui/layout'
 import { inputClassName } from '../../components/ui/styles'
+import { DataGridShell } from '../../components/ui/DataGridShell'
 
 const ROLES = ['Admin', 'Editor', 'Viewer']
 const FIELD_KEYS = { UserName: 'userName', DisplayName: 'displayName', Role: 'role', Password: 'password' }
@@ -27,9 +28,9 @@ export function UsersPage() {
       <AddUser onAdded={(u) => setData((rows) => [...rows, u].sort((a, b) => a.userName.localeCompare(b.userName)))} />
 
       {loading && !data ? <LoadingSurface /> : !data ? <ErrorSurface onRetry={retry}>{errorMessage(error)}</ErrorSurface> : (
-        <div aria-busy={refreshing} className="relative overflow-x-auto rounded-lg border border-border-subtle bg-surface-panel">
+        <DataGridShell aria-busy={refreshing} className="rounded-lg border border-border-subtle bg-surface-panel">
           <table className="w-full min-w-[960px] text-body">
-            <thead className="border-b border-border-subtle bg-surface-muted text-left text-caption text-ink-muted">
+            <thead className="sticky top-0 z-10 border-b border-border-subtle bg-surface-muted text-left text-caption text-ink-muted">
               <tr>
                 <th className="px-3 py-2.5">ชื่อผู้ใช้</th>
                 <th className="px-3 py-2.5">ชื่อที่แสดง</th>
@@ -44,7 +45,7 @@ export function UsersPage() {
               {data.map((u) => <UserRow key={u.id} user={u} isSelf={u.userName.toLowerCase() === session.userName.toLowerCase()} onSaved={replace} />)}
             </tbody>
           </table>
-        </div>
+        </DataGridShell>
       )}
     </Page>
   )

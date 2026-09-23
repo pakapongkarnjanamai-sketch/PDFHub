@@ -8,6 +8,7 @@ import { useAsyncData } from '../../lib/useAsyncData'
 import { AppButton } from '../../components/ui/buttons'
 import { ErrorSurface, LoadingSurface } from '../../components/ui/feedback'
 import { Field, FormActions, Page, PageHeader, TitledSection } from '../../components/ui/layout'
+import { DataGridShell } from '../../components/ui/DataGridShell'
 import { inputClassName } from '../../components/ui/styles'
 
 const STATUS = {
@@ -151,9 +152,9 @@ function History({ runs, refreshing }) {
       {runs.length === 0 ? (
         <p className="px-4 py-6 text-center text-body text-ink-muted sm:px-5">ยังไม่เคยสำรองข้อมูลจากหน้านี้</p>
       ) : (
-        <div aria-busy={refreshing} className="relative overflow-x-auto">
+        <DataGridShell aria-busy={refreshing} className="border-t border-border-subtle">
           <table className="w-full min-w-[860px] text-body">
-            <thead className="border-b border-border-subtle bg-surface-muted text-left text-caption text-ink-muted">
+            <thead className="sticky top-0 z-10 border-b border-border-subtle bg-surface-muted text-left text-caption text-ink-muted">
               <tr>
                 <th className="px-3 py-2.5">เริ่ม</th>
                 <th className="px-3 py-2.5">ปลายทาง</th>
@@ -184,7 +185,7 @@ function History({ runs, refreshing }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </DataGridShell>
       )}
     </TitledSection>
   )

@@ -1,6 +1,6 @@
 /** One max width and vertical rhythm for list, form and detail pages. */
 export function Page({ wide = false, children }) {
-  return <div className={`mx-auto w-full space-y-5 ${wide ? 'max-w-[1600px]' : 'max-w-5xl'}`}>{children}</div>
+  return <div className={`mx-auto min-h-full w-full space-y-5 overflow-y-auto ${wide ? 'max-w-[1600px]' : 'max-w-5xl'}`}>{children}</div>
 }
 
 /** Title, optional status/meta line and wrapping actions — on the page surface, never in a card. */

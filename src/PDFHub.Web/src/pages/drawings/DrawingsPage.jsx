@@ -1,16 +1,15 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Download, FileText, Pencil, Plus, Search, X } from 'lucide-react'
 import { drawingsApi } from '../../api'
 import { errorMessage } from '../../lib/apiClient'
 import { formatDate, formatPrice } from '../../lib/format'
-import { useAsyncData } from '../../lib/useAsyncData'
 import { useSession } from '../../session/SessionContext'
 import { pdfUrl } from '../../config/appConfig'
 import { AppButton, ExternalAction, IconButton, LinkButton } from '../../components/ui/buttons'
 import { EmptySurface, ErrorSurface, LoadingSurface } from '../../components/ui/feedback'
 import { Page, PageHeader } from '../../components/ui/layout'
-import { Pagination } from '../../components/ui/Pagination'
+import { DataGridShell } from '../../components/ui/DataGridShell'
 import { inputClassName, recordLinkClassName } from '../../components/ui/styles'
 
 const FILTER_KEYS = ['q', 'section', 'year', 'po', 'pdf']
@@ -26,12 +25,81 @@ const COLUMNS = [
   { key: null, label: 'PDF', center: true },
   { key: 'date', label: 'Input Date' },
   { key: 'quo', label: 'Quo No.' },
-  { key: null, label: 'Remark' },
   { key: 'po', label: 'PO No.' },
 ]
 
 /** Descending first for dates and prices (newest, most expensive), ascending for text. */
 const defaultDir = (key) => (key === 'date' || key === 'price' ? 'desc' : 'asc')
+
+const DRAWINGS_PAGE_SIZE = 100
+
+function useInfiniteDrawings(query) {
+  const [data, setData] = useState(null)
+  const [error, setError] = useState(null)
+  const [loadMoreError, setLoadMoreError] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [retryToken, setRetryToken] = useState(0)
+  const dataRef = useRef(null)
+  const loadingMoreRef = useRef(false)
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const hasExistingData = Boolean(dataRef.current)
+    setLoading(!hasExistingData)
+    setRefreshing(hasExistingData)
+    setError(null)
+    setLoadMoreError(null)
+    setLoadingMore(false)
+    loadingMoreRef.current = false
+
+    drawingsApi.list({ ...query, page: 1, pageSize: DRAWINGS_PAGE_SIZE }, controller.signal)
+      .then((next) => {
+        if (controller.signal.aborted) return
+        dataRef.current = next
+        setData(next)
+      })
+      .catch((err) => {
+        if (!controller.signal.aborted) setError(err)
+      })
+      .finally(() => {
+        if (controller.signal.aborted) return
+        setLoading(false)
+        setRefreshing(false)
+      })
+
+    return () => controller.abort()
+  }, [query, retryToken])
+
+  const loadMore = useCallback(async (retry = false) => {
+    const current = dataRef.current
+    if (!current || loadingMoreRef.current || current.items.length >= current.filteredCount || (!retry && loadMoreError)) return
+
+    loadingMoreRef.current = true
+    setLoadingMore(true)
+    setLoadMoreError(null)
+    const nextPage = current.page + 1
+    const controller = new AbortController()
+
+    try {
+      const next = await drawingsApi.list({ ...query, page: nextPage, pageSize: current.pageSize }, controller.signal)
+      const combined = { ...next, items: [...current.items, ...next.items] }
+      dataRef.current = combined
+      setData(combined)
+    } catch (err) {
+      setLoadMoreError(err)
+    } finally {
+      loadingMoreRef.current = false
+      setLoadingMore(false)
+    }
+  }, [loadMoreError, query])
+
+  const retry = useCallback(() => setRetryToken((token) => token + 1), [])
+  const hasMore = Boolean(data && data.items.length < data.filteredCount)
+
+  return { data, error, loadMoreError, loading, refreshing, loadingMore, hasMore, loadMore, retry }
+}
 
 export function DrawingsPage() {
   const { session } = useSession()
@@ -49,8 +117,20 @@ export function DrawingsPage() {
     page: Number(searchParams.get('page') ?? 1),
   }), [searchParams])
 
-  const load = useCallback((signal) => drawingsApi.list(query, signal), [query])
-  const { data, error, loading, refreshing, retry } = useAsyncData(load)
+  const { data, error, loadMoreError, loading, refreshing, loadingMore, hasMore, loadMore, retry } = useInfiniteDrawings(query)
+  const tableScrollRef = useRef(null)
+  const sentinelRef = useRef(null)
+
+  useEffect(() => {
+    const root = tableScrollRef.current
+    const sentinel = sentinelRef.current
+    if (!root || !sentinel || !hasMore || refreshing || loadingMore || loadMoreError) return
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) loadMore()
+    }, { root, rootMargin: '0px 0px 160px' })
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [hasMore, loadMore, loadMoreError, loadingMore, refreshing])
 
   const update = useCallback((changes, { resetPage = true } = {}) => {
     setSearchParams((current) => {
@@ -116,10 +196,10 @@ export function DrawingsPage() {
             )
           ) : (
             <div className="overflow-hidden rounded-lg border border-border-subtle bg-surface-panel">
-              <div aria-busy={refreshing} className={`relative overflow-x-auto transition-opacity ${refreshing ? 'pointer-events-none opacity-60' : ''}`}>
+              <DataGridShell scrollRef={tableScrollRef} className={`transition-opacity ${refreshing ? 'pointer-events-none opacity-60' : ''}`}>
                 <table className="w-full min-w-[1100px] border-collapse text-body">
                   <thead>
-                    <tr className="border-b border-border-subtle bg-surface-muted text-left">
+                    <tr className="sticky top-0 z-10 border-b border-border-subtle bg-surface-muted text-left">
                       <th scope="col" className="px-3 py-2.5 text-right text-caption font-semibold text-ink-muted">No.</th>
                       {COLUMNS.map((col) => (
                         <th key={col.label} scope="col"
@@ -161,7 +241,6 @@ export function DrawingsPage() {
                         </td>
                         <td className="px-3 py-2 whitespace-nowrap tabular-nums">{formatDate(d.inputDate)}</td>
                         <td className="px-3 py-2 whitespace-nowrap">{d.quoNo}</td>
-                        <td className="max-w-56 truncate px-3 py-2 text-ink-muted" title={d.remark}>{d.remark}</td>
                         <td className="px-3 py-2 whitespace-nowrap">{d.poNo}</td>
                         {session.canEdit && (
                           <td className="px-2 py-1 text-right">
@@ -174,9 +253,17 @@ export function DrawingsPage() {
                     ))}
                   </tbody>
                 </table>
-              </div>
-              <Pagination page={data.page} pageSize={data.pageSize} total={data.filteredCount}
-                onPageChange={(page) => update({ page: page > 1 ? page : '' }, { resetPage: false })} />
+                <div ref={sentinelRef} className="flex min-h-12 items-center justify-center border-t border-border-subtle px-3 py-2 text-caption text-ink-muted">
+                  {loadingMore && 'กำลังโหลดข้อมูลเพิ่มเติม…'}
+                  {loadMoreError && (
+                    <span className="flex items-center gap-2">
+                      <span>{errorMessage(loadMoreError)}</span>
+                      <AppButton size="sm" onClick={() => loadMore(true)}>ลองใหม่</AppButton>
+                    </span>
+                  )}
+                  {!loadingMore && !loadMoreError && !hasMore && 'แสดงข้อมูลครบแล้ว'}
+                </div>
+              </DataGridShell>
             </div>
           )}
         </>

@@ -34,7 +34,7 @@ export function AppLayout({ children } = {}) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <Header drawerOpen={drawerOpen} onToggleDrawer={() => setDrawerOpen((o) => !o)} pathname={pathname} />
-        <main className="flex-1 overflow-y-auto px-4 py-5 sm:px-6">{children ?? <Outlet />}</main>
+        <main className="flex-1 overflow-hidden px-4 py-5 sm:px-6">{children ?? <Outlet />}</main>
       </div>
     </div>
   )
