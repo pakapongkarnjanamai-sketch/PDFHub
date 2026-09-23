@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\PDFHub\PDFHub.csproj" />
+    <ProjectReference Include="..\..\src\PDFHub.Api\PDFHub.Api.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,54 @@
+@import 'tailwindcss';
+
+/*
+  Design tokens (frontend-tailwind-design-tokens skill). Feature code uses only these semantic
+  utilities: bg-surface-*, text-ink-*, border-border-subtle, text-accent, text-body, ...
+  Measured sRGB contrast (2026-09-23):
+    accent on panel 6.63:1, white on accent 6.63:1, accent on accent-soft 5.91:1,
+    white on accent-hover 9.29:1, ink-muted on panel 6.56:1, danger on panel 6.37:1,
+    success on panel 6.12:1, warning on panel 4.93:1.
+  accent vs ink-strong is only 2.19:1, so record links carry a permanent underline.
+*/
+@theme {
+  --font-sans: 'Noto Sans Thai Variable', 'Noto Sans Thai', 'Leelawadee UI', system-ui, sans-serif;
+  --font-mono: Consolas, 'Cascadia Mono', ui-monospace, monospace;
+
+  --color-surface-app: oklch(0.977 0.003 250);
+  --color-surface-panel: oklch(1 0 0);
+  --color-surface-muted: oklch(0.955 0.005 250);
+  --color-border-subtle: oklch(0.905 0.008 250);
+  --color-border-strong: oklch(0.82 0.01 250);
+
+  --color-ink-strong: oklch(0.28 0.03 256);
+  --color-ink-muted: oklch(0.48 0.02 256);
+  --color-ink-soft: oklch(0.62 0.015 256);
+
+  --color-accent: oklch(0.48 0.15 255);
+  --color-accent-hover: oklch(0.4 0.15 255);
+  --color-accent-soft: oklch(0.96 0.02 255);
+
+  --color-danger: oklch(0.51 0.19 27);
+  --color-danger-soft: oklch(0.97 0.015 27);
+  --color-success: oklch(0.48 0.12 155);
+  --color-success-soft: oklch(0.97 0.02 155);
+  --color-warning: oklch(0.55 0.13 75);
+  --color-warning-soft: oklch(0.97 0.02 75);
+
+  /* Thai stacks marks above and below the line: 14px body and 12px caption are the floor. */
+  --text-caption: 0.75rem;
+  --text-body: 0.875rem;
+  --text-heading: 1rem;
+  --text-title: 1.5rem;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-surface-app font-sans text-body text-ink-strong antialiased;
+  }
+}

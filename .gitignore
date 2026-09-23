@@ -2,7 +2,14 @@
 bin/
 obj/
 publish/
+artifacts/
 TestResults/
+node_modules/
+src/PDFHub.Web/dist/
+# The React build is copied here by scripts/Deploy-PDFHub.ps1; it is not source. The folder itself
+# must exist, or ASP.NET Core's static web assets fail at startup.
+src/PDFHub.Api/wwwroot/*
+!src/PDFHub.Api/wwwroot/.gitkeep
 
 # IDE
 .vs/
@@ -10,6 +17,11 @@ TestResults/
 .idea/
 *.user
 *.suo
+
+# Local environment
+.env
+.env.local
+.env.*.local
 
 # Runtime data: database, uploaded PDFs, backups
 App_Data/

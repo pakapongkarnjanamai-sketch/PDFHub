@@ -1,6 +1,9 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/PDFHub/PDFHub.csproj" />
+    <Project Path="src/PDFHub.Api/PDFHub.Api.csproj" />
+    <Project Path="src/PDFHub.Application/PDFHub.Application.csproj" />
+    <Project Path="src/PDFHub.Domain/PDFHub.Domain.csproj" />
+    <Project Path="src/PDFHub.Infrastructure/PDFHub.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PDFHub.Tests/PDFHub.Tests.csproj" />

@@ -2,10 +2,16 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "pdfhub",
+      "name": "api",
       "runtimeExecutable": "dotnet",
-      "runtimeArgs": ["run", "--project", "src/PDFHub", "--launch-profile", "http"],
-      "port": 5210
+      "runtimeArgs": ["run", "--project", "src/PDFHub.Api", "--launch-profile", "http"],
+      "port": 5079
+    },
+    {
+      "name": "web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "src/PDFHub.Web"],
+      "port": 5217
     }
   ]
 }
