@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "pdfhub",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/PDFHub", "--launch-profile", "http"],
+      "port": 5210
+    }
+  ]
+}

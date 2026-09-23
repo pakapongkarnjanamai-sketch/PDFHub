@@ -1,10 +1,13 @@
 using System.Globalization;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.WebEncoders;
 using PDFHub;
 using PDFHub.Data;
 using PDFHub.Services;
@@ -53,6 +56,9 @@ builder.Services.AddOptions<AuthorizationOptions>().Configure<IOptions<PdfHubOpt
     if (hub.Value.RequireLoginToView)
         o.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
 });
+
+// Send Thai text as-is instead of &#xE23; entities (the default only allows Basic Latin).
+builder.Services.Configure<WebEncoderOptions>(o => o.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All));
 
 builder.Services.AddRazorPages(o =>
 {
