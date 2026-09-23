@@ -1,0 +1,109 @@
+@page "/admin/users"
+@model PDFHub.Pages.Admin.UsersModel
+@{
+    ViewData["Title"] = "ผู้ใช้งาน";
+    var me = User.UserId();
+}
+
+<div class="page-head">
+    <div>
+        <h1>ผู้ใช้งาน</h1>
+        <p class="muted">
+            <strong>ผู้ดูแลระบบ</strong> จัดการทุกอย่าง ·
+            <strong>ผู้บันทึกข้อมูล</strong> เพิ่ม/แก้ไข Drawing และอัปโหลด PDF ·
+            <strong>ผู้ดูข้อมูล</strong> ค้นหาและเปิด PDF ได้อย่างเดียว
+        </p>
+    </div>
+</div>
+
+<form method="post" asp-page-handler="Add" class="card inline-form">
+    <div class="field">
+        <label asp-for="NewUser.UserName">ชื่อผู้ใช้ (ใช้ login)</label>
+        <input asp-for="NewUser.UserName" autocomplete="off" required />
+        <span asp-validation-for="NewUser.UserName" class="field-error"></span>
+    </div>
+    <div class="field">
+        <label asp-for="NewUser.DisplayName">ชื่อที่แสดง</label>
+        <input asp-for="NewUser.DisplayName" autocomplete="off" />
+    </div>
+    <div class="field">
+        <label asp-for="NewUser.Role">สิทธิ์</label>
+        <select asp-for="NewUser.Role">
+            @foreach (var role in Roles.All)
+            {
+                <option value="@role" selected="@(role == Model.NewUser.Role)">@Roles.Label(role)</option>
+            }
+        </select>
+    </div>
+    <div class="field">
+        <label asp-for="NewUser.Password">รหัสผ่านเริ่มต้น</label>
+        <input asp-for="NewUser.Password" type="text" autocomplete="off" required />
+        <span asp-validation-for="NewUser.Password" class="field-error"></span>
+    </div>
+    <div class="field field-buttons">
+        <button type="submit" class="btn btn-primary">@Ui.Icon("plus") เพิ่มผู้ใช้</button>
+    </div>
+</form>
+
+<div class="card table-wrap">
+    <table class="grid">
+        <thead>
+            <tr>
+                <th>ชื่อผู้ใช้</th>
+                <th>ชื่อที่แสดง</th>
+                <th>สิทธิ์</th>
+                <th>สถานะ</th>
+                <th>เข้าระบบล่าสุด</th>
+                <th></th>
+                <th>ตั้งรหัสผ่านชั่วคราว</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var u in Model.Users)
+            {
+                var formId = $"user-{u.Id}";
+                var isMe = u.Id == me;
+                <tr class="@(u.IsActive ? "" : "row-muted")">
+                    <td class="mono">
+                        <strong>@u.UserName</strong>
+                        @if (isMe) { <span class="badge">คุณ</span> }
+                        @if (u.MustChangePassword) { <span class="badge badge-warn" title="ต้องเปลี่ยนรหัสผ่านเมื่อเข้าระบบ">รอเปลี่ยนรหัส</span> }
+                    </td>
+                    <td><input form="@formId" name="displayName" value="@u.DisplayName" maxlength="100" aria-label="ชื่อที่แสดงของ @u.UserName" /></td>
+                    <td>
+                        <select form="@formId" name="role" disabled="@isMe" aria-label="สิทธิ์ของ @u.UserName">
+                            @foreach (var role in Roles.All)
+                            {
+                                <option value="@role" selected="@(role == u.Role)">@Roles.Label(role)</option>
+                            }
+                        </select>
+                        @if (isMe) { <input form="@formId" type="hidden" name="role" value="@u.Role" /> }
+                    </td>
+                    <td>
+                        @if (isMe)
+                        {
+                            <input form="@formId" type="hidden" name="active" value="true" />
+                            <span class="muted">ใช้งาน</span>
+                        }
+                        else
+                        {
+                            <label class="check"><input form="@formId" type="checkbox" name="active" value="true" checked="@u.IsActive" /> ใช้งาน</label>
+                        }
+                    </td>
+                    <td class="nowrap muted">@Ui.DateTime(u.LastLoginAt)</td>
+                    <td>
+                        <form id="@formId" method="post" asp-page-handler="Update" asp-route-id="@u.Id">
+                            <button type="submit" class="btn btn-sm">บันทึก</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post" asp-page-handler="ResetPassword" asp-route-id="@u.Id" class="reset-form">
+                            <input name="password" type="text" minlength="@UsersModel.MinPasswordLength" placeholder="รหัสใหม่" autocomplete="off" required aria-label="รหัสผ่านชั่วคราวของ @u.UserName" />
+                            <button type="submit" class="btn btn-sm">ตั้งรหัส</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

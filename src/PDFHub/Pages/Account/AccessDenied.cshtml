@@ -1,0 +1,10 @@
+@page "/account/access-denied"
+@{
+    ViewData["Title"] = "ไม่มีสิทธิ์";
+}
+
+<div class="card empty">
+    @Ui.Icon("user", "icon-xl")
+    <h2>คุณไม่มีสิทธิ์ใช้งานหน้านี้</h2>
+    <p class="muted">ติดต่อผู้ดูแลระบบหากต้องการสิทธิ์เพิ่ม · <a asp-page="/Index">กลับหน้ารายการ</a></p>
+</div>

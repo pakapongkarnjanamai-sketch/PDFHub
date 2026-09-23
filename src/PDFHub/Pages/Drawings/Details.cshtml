@@ -1,0 +1,87 @@
+@page "/drawing/{code}"
+@model PDFHub.Pages.Drawings.DetailsModel
+@{
+    var d = Model.Drawing;
+    ViewData["Title"] = d.PdfCode;
+    var pdfUrl = Url.Content($"~/pdf/{d.PdfCode}.pdf");
+}
+
+<a class="back-link" asp-page="/Index">@Ui.Icon("back") กลับไปรายการ</a>
+
+<div class="page-head">
+    <div>
+        <h1 class="title-code">
+            <span class="code">@d.PdfCode</span>
+            <span class="tag">@d.Section.Name</span>
+            @if (d.HasPo)
+            {
+                <span class="badge badge-ok">@Ui.Icon("check") มี PO</span>
+            }
+        </h1>
+        <p class="lead">@d.PartName</p>
+    </div>
+    <div class="actions">
+        @if (d.PdfFileName is not null)
+        {
+            <a class="btn" href="@pdfUrl" target="_blank" rel="noopener">@Ui.Icon("external") เปิดแท็บใหม่</a>
+            <a class="btn" href="@(pdfUrl)?download=true">@Ui.Icon("download") ดาวน์โหลด</a>
+        }
+        @if (User.CanEdit())
+        {
+            <a class="btn btn-primary" asp-page="/Drawings/Edit" asp-route-id="@d.Id">@Ui.Icon("edit") แก้ไข</a>
+        }
+    </div>
+</div>
+
+<div class="details">
+    <aside class="card meta">
+        <dl>
+            <dt>PdfCode</dt>
+            <dd class="mono">@d.PdfCode</dd>
+            <dt>Section</dt>
+            <dd>@d.Section.Name <span class="muted">(@d.Section.Code)</span></dd>
+            <dt>Part Name</dt>
+            <dd>@d.PartName</dd>
+            <dt>Drawing No.</dt>
+            <dd class="mono">@(d.DrawingNo ?? "—")</dd>
+            <dt>Material</dt>
+            <dd>@(d.Material ?? "—")</dd>
+            <dt>Price</dt>
+            <dd>@(d.Price is null ? "—" : Ui.Price(d.Price) + " บาท")</dd>
+            <dt>Input Date</dt>
+            <dd>@Ui.Date(d.InputDate)</dd>
+            <dt>Quotation No.</dt>
+            <dd>@(d.QuoNo ?? "—")</dd>
+            <dt>Have a PO</dt>
+            <dd>@(d.HasPo ? "มี PO แล้ว" : "ยังไม่มี")</dd>
+            <dt>Remark</dt>
+            <dd class="pre">@(d.Remark ?? "—")</dd>
+        </dl>
+        <div class="meta-foot">
+            @if (d.PdfFileName is not null)
+            {
+                <div>ไฟล์ PDF: @Ui.FileSize(d.PdfSize) · อัปโหลด @Ui.DateTime(d.PdfUploadedAt)</div>
+            }
+            <div>สร้าง @Ui.DateTime(d.CreatedAt)@(d.CreatedBy is null ? "" : " โดย " + d.CreatedBy)</div>
+            <div>แก้ไขล่าสุด @Ui.DateTime(d.UpdatedAt)@(d.UpdatedBy is null ? "" : " โดย " + d.UpdatedBy)</div>
+        </div>
+    </aside>
+
+    <section class="card viewer">
+        @if (d.PdfFileName is not null)
+        {
+            <iframe src="@pdfUrl" title="@(d.PdfCode).pdf"></iframe>
+        }
+        else
+        {
+            <div class="empty">
+                @Ui.Icon("file", "icon-xl")
+                <h2>ยังไม่มีไฟล์ PDF</h2>
+                @if (User.CanEdit())
+                {
+                    <p class="muted"><a asp-page="/Drawings/Edit" asp-route-id="@d.Id">แนบไฟล์ PDF</a> หรือใช้ <a asp-page="/Import/Index">อัปโหลดหลายไฟล์</a></p>
+                }
+            </div>
+        }
+    </section>
+</div>

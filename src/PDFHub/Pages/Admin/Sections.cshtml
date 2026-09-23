@@ -1,0 +1,68 @@
+@page "/admin/sections"
+@model PDFHub.Pages.Admin.SectionsModel
+@{
+    ViewData["Title"] = "Section";
+}
+
+<div class="page-head">
+    <div>
+        <h1>Section</h1>
+        <p class="muted">รหัส 2 ตัวอักษรหน้า PdfCode (เดิมคือชีต List Type) ใช้ตรวจว่า PdfCode ที่กรอกถูกต้อง</p>
+    </div>
+</div>
+
+<form method="post" asp-page-handler="Add" class="card inline-form">
+    <div class="field">
+        <label for="NewCode">รหัส</label>
+        <input id="NewCode" name="NewCode" value="@Model.NewCode" maxlength="2" class="mono input-short" placeholder="NB" required />
+        <span asp-validation-for="NewCode" class="field-error"></span>
+    </div>
+    <div class="field grow">
+        <label for="NewName">ชื่อ Section</label>
+        <input id="NewName" name="NewName" value="@Model.NewName" maxlength="100" placeholder="NMB" required />
+        <span asp-validation-for="NewName" class="field-error"></span>
+    </div>
+    <div class="field field-buttons">
+        <button type="submit" class="btn btn-primary">@Ui.Icon("plus") เพิ่ม Section</button>
+    </div>
+</form>
+
+<div class="card table-wrap">
+    <table class="grid">
+        <thead>
+            <tr>
+                <th>รหัส</th>
+                <th>ชื่อ Section</th>
+                <th class="num">จำนวน Drawing</th>
+                <th>ใช้งาน</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var (s, count) in Model.Rows)
+            {
+                var formId = $"section-{s.Id}";
+                <tr class="@(s.IsActive ? "" : "row-muted")">
+                    <td class="mono"><strong>@s.Code</strong></td>
+                    <td><input form="@formId" name="name" value="@s.Name" maxlength="100" aria-label="ชื่อ Section @s.Code" /></td>
+                    <td class="num"><a asp-page="/Index" asp-route-section="@s.Code">@count.ToString("N0")</a></td>
+                    <td>
+                        <label class="check"><input form="@formId" type="checkbox" name="active" value="true" checked="@s.IsActive" /> เปิดใช้</label>
+                    </td>
+                    <td class="row-actions">
+                        <form id="@formId" method="post" asp-page-handler="Update" asp-route-id="@s.Id">
+                            <button type="submit" class="btn btn-sm">บันทึก</button>
+                        </form>
+                        @if (count == 0)
+                        {
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@s.Id" data-confirm="ลบ Section @s.Code?">
+                                <button type="submit" class="icon-btn icon-btn-danger" title="ลบ">@Ui.Icon("trash")</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<p class="muted small">Section ที่ปิดใช้งานจะรับ PdfCode ใหม่ไม่ได้ แต่ Drawing เดิมยังค้นหาและเปิดดูได้ตามปกติ</p>

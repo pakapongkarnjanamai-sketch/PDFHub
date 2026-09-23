@@ -1,0 +1,33 @@
+@page "/account/login"
+@model PDFHub.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "เข้าสู่ระบบ";
+}
+
+<div class="auth">
+    <form method="post" class="card auth-card">
+        <img src="~/favicon.svg" alt="" width="44" height="44" />
+        <h1>เข้าสู่ระบบ PDFHub</h1>
+        <p class="muted">ต้องเข้าสู่ระบบเพื่อเพิ่มหรือแก้ไขข้อมูล</p>
+
+        @if (Model.Error is not null)
+        {
+            <div class="flash flash-error">@Model.Error</div>
+        }
+
+        <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
+        <div class="field">
+            <label for="UserName">ชื่อผู้ใช้</label>
+            <input id="UserName" name="UserName" value="@Model.UserName" autocomplete="username" autofocus required />
+        </div>
+        <div class="field">
+            <label for="Password">รหัสผ่าน</label>
+            <input id="Password" name="Password" type="password" autocomplete="current-password" required />
+        </div>
+        <label class="check">
+            <input type="checkbox" name="Remember" value="true" />
+            <span>จำการเข้าสู่ระบบไว้ 30 วัน <span class="muted">(ไม่ควรเลือกบนเครื่องที่ใช้ร่วมกัน)</span></span>
+        </label>
+        <button type="submit" class="btn btn-primary btn-block">เข้าสู่ระบบ</button>
+    </form>
+</div>

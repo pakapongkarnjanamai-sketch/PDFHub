@@ -1,0 +1,23 @@
+# Build output
+bin/
+obj/
+publish/
+TestResults/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Runtime data: database, uploaded PDFs, backups
+App_Data/
+*.db
+*.db-shm
+*.db-wal
+
+# Customer data (prices, drawing numbers) — keep it out of the public repository
+Doc/*.xlsx
+Doc/*.xlsm
+Doc/*.pdf

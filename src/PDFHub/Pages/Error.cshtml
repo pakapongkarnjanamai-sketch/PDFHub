@@ -1,0 +1,22 @@
+@page "/error"
+@attribute [Microsoft.AspNetCore.Mvc.IgnoreAntiforgeryToken]
+@{
+    int.TryParse(HttpContext.Request.Query["code"], out var code);
+    if (code == 0) code = 500;
+    ViewData["Title"] = code == 404 ? "ไม่พบหน้า" : "เกิดข้อผิดพลาด";
+}
+
+<div class="card empty">
+    @Ui.Icon("file", "icon-xl")
+    @if (code == 404)
+    {
+        <h2>ไม่พบหน้าหรือไฟล์ที่ต้องการ</h2>
+        <p class="muted">ลิงก์อาจไม่ถูกต้อง หรือข้อมูลถูกลบไปแล้ว</p>
+    }
+    else
+    {
+        <h2>เกิดข้อผิดพลาด (@code)</h2>
+        <p class="muted">ลองใหม่อีกครั้ง หากยังเกิดขึ้นให้แจ้งผู้ดูแลระบบ</p>
+    }
+    <p><a class="btn" asp-page="/Index">กลับหน้ารายการ</a></p>
+</div>
