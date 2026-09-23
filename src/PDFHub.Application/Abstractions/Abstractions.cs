@@ -71,7 +71,9 @@ public sealed record SpreadsheetRow(
     DateOnly? InputDate,
     string? QuoNo,
     string? Remark,
-    string? Po);
+    string? PoNo,
+    /// <summary>The old "Have a PO" tick column (a Wingdings "ü"), when the sheet has one.</summary>
+    string? LegacyPoTick);
 
 public sealed record SpreadsheetSheet(string Name, IReadOnlyList<SpreadsheetRow> Rows);
 

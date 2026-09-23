@@ -16,6 +16,7 @@ public interface IImportService
 public sealed class ImportService(IUnitOfWork uow, IDrawingSpreadsheet spreadsheet, IDateTime clock) : IImportService
 {
     // The old sheet ticks "Have a PO" with a Wingdings "ü"; anything except these counts as ticked.
+    // A tick carries no number, so it becomes PdfCodeRules.PoWithoutNumber unless the sheet also has a PO No.
     private static readonly string[] FalseWords = ["0", "false", "no", "n", "-", "ไม่มี"];
 
     public async Task<ImportResultDto> ImportAsync(Stream xlsx, ImportMode mode, bool dryRun, CancellationToken ct = default)
@@ -86,7 +87,9 @@ public sealed class ImportService(IUnitOfWork uow, IDrawingSpreadsheet spreadshe
                 drawing.InputDate = inputDate.Value;
                 drawing.QuoNo = row.QuoNo;
                 drawing.Remark = row.Remark;
-                drawing.HasPo = row.Po is { } po && !FalseWords.Contains(po, StringComparer.OrdinalIgnoreCase);
+                drawing.PoNo = row.PoNo ?? (row.LegacyPoTick is { } tick && !FalseWords.Contains(tick, StringComparer.OrdinalIgnoreCase)
+                    ? PdfCodeRules.PoWithoutNumber
+                    : null);
             }
         }
 

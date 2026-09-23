@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Check, Download, FileText, Pencil, Plus, Search, X } from 'lucide-react'
+import { Download, FileText, Pencil, Plus, Search, X } from 'lucide-react'
 import { drawingsApi } from '../../api'
 import { errorMessage } from '../../lib/apiClient'
 import { formatDate, formatPrice } from '../../lib/format'
@@ -27,7 +27,7 @@ const COLUMNS = [
   { key: 'date', label: 'Input Date' },
   { key: 'quo', label: 'Quo No.' },
   { key: null, label: 'Remark' },
-  { key: 'po', label: 'PO', center: true },
+  { key: 'po', label: 'PO No.' },
 ]
 
 /** Descending first for dates and prices (newest, most expensive), ascending for text. */
@@ -162,9 +162,7 @@ export function DrawingsPage() {
                         <td className="px-3 py-2 whitespace-nowrap tabular-nums">{formatDate(d.inputDate)}</td>
                         <td className="px-3 py-2 whitespace-nowrap">{d.quoNo}</td>
                         <td className="max-w-56 truncate px-3 py-2 text-ink-muted" title={d.remark}>{d.remark}</td>
-                        <td className="px-3 py-2 text-center">
-                          {d.hasPo ? <Check className="mx-auto size-4 text-success" aria-label="มี PO แล้ว" /> : <span className="sr-only">ยังไม่มี PO</span>}
-                        </td>
+                        <td className="px-3 py-2 whitespace-nowrap">{d.poNo}</td>
                         {session.canEdit && (
                           <td className="px-2 py-1 text-right">
                             <IconButton label={`แก้ไข ${d.pdfCode}`} size="sm" tone="primary" to={`/drawings/${d.pdfCode}/edit`}>
@@ -221,7 +219,7 @@ function Toolbar({ query, options, update, isFiltered, onClear }) {
           <Search className="pointer-events-none absolute top-2.5 left-2.5 size-4 text-ink-soft" aria-hidden />
           <input type="search" value={searchInput} onChange={(e) => setSearchInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') update({ q: searchInput.trim() }) }}
-            placeholder="PdfCode, Part Name, Drawing No., Material, Quo No., หมายเหตุ"
+            placeholder="PdfCode, Part Name, Drawing No., Material, Quo No., PO No., หมายเหตุ"
             className={inputClassName('w-full pr-9 pl-8')} />
           {searchInput && (
             <button type="button" aria-label="ล้างคำค้น" onClick={() => { setSearchInput(''); update({ q: '' }) }}

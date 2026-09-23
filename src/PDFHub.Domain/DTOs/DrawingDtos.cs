@@ -12,7 +12,7 @@ public class DrawingListQuery
     public string? Q { get; set; }
     public string? Section { get; set; }
     public int? Year { get; set; }
-    /// <summary>"yes" | "no" | empty</summary>
+    /// <summary>"yes" (has a PO No.) | "no" | empty</summary>
     public string? Po { get; set; }
     /// <summary>"has" | "missing" | empty</summary>
     public string? Pdf { get; set; }
@@ -39,7 +39,7 @@ public class DrawingListItemDto
     public DateOnly InputDate { get; set; }
     public string QuoNo { get; set; } = string.Empty;
     public string Remark { get; set; } = string.Empty;
-    public bool HasPo { get; set; }
+    public string PoNo { get; set; } = string.Empty;
     public bool HasPdf { get; set; }
 }
 
@@ -85,7 +85,7 @@ public class CreateDrawingDto
     public DateOnly? InputDate { get; set; }
     public string? QuoNo { get; set; }
     public string? Remark { get; set; }
-    public bool HasPo { get; set; }
+    public string? PoNo { get; set; }
 }
 
 public class UpdateDrawingDto : CreateDrawingDto;

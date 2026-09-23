@@ -57,10 +57,11 @@ public class ImportTests : IDisposable
         Assert.Equal(3, done.GetProperty("added").GetInt32());
         Assert.Equal(2, done.GetProperty("warnings").GetArrayLength()); // unreadable price, missing date
 
+        // The old "Have a PO" tick has no number, so it is kept as a marker rather than an invented number.
         var carrier = await client.GetJsonAsync("/api/drawings/NB-06618");
-        Assert.True(carrier.GetProperty("hasPo").GetBoolean());
+        Assert.Equal("มี PO (ไม่ระบุเลขที่)", carrier.GetProperty("poNo").GetString());
         var pusher = await client.GetJsonAsync("/api/drawings/NB-06619");
-        Assert.False(pusher.GetProperty("hasPo").GetBoolean());
+        Assert.Equal("", pusher.GetProperty("poNo").GetString());
         Assert.Equal("ACRYLIC", pusher.GetProperty("material").GetString());
         Assert.Equal(1200m, pusher.GetProperty("price").GetDecimal());
         Assert.Equal("2026-08-08", pusher.GetProperty("inputDate").GetString()); // Buddhist year converted
@@ -68,6 +69,26 @@ public class ImportTests : IDisposable
         // Importing again skips what exists, or updates it on request.
         Assert.Equal(3, (await ImportAsync(client, file, false)).GetProperty("skipped").GetInt32());
         Assert.Equal(3, (await ImportAsync(client, file, false, "UpdateExisting")).GetProperty("updated").GetInt32());
+    }
+
+    [Fact]
+    public async Task A_PO_No_column_is_imported_as_the_number()
+    {
+        var client = _app.Spa();
+        await client.LoginAsAdminAsync();
+        using var wb = new XLWorkbook();
+        var ws = wb.AddWorksheet("Sheet1");
+        string[] headers = ["PdfCodeS", "PartName", "InputDate", "PO No."];
+        for (var c = 0; c < headers.Length; c++) ws.Cell(1, c + 1).Value = headers[c];
+        ws.Cell(2, 1).Value = "NB-06618";
+        ws.Cell(2, 2).Value = "CARRIER";
+        ws.Cell(2, 3).Value = new DateTime(2026, 8, 8);
+        ws.Cell(2, 4).Value = "PO-7788";
+        using var ms = new MemoryStream();
+        wb.SaveAs(ms);
+
+        await ImportAsync(client, ms.ToArray(), dryRun: false);
+        Assert.Equal("PO-7788", (await client.GetJsonAsync("/api/drawings/NB-06618")).GetProperty("poNo").GetString());
     }
 
     [Fact]
@@ -81,6 +102,9 @@ public class ImportTests : IDisposable
         var again = await ImportAsync(client, export, dryRun: true, mode: "UpdateExisting");
         Assert.Equal(1, again.GetProperty("updated").GetInt32());
         Assert.Equal(0, again.GetProperty("errors").GetArrayLength());
+
+        await ImportAsync(client, export, dryRun: false, mode: "UpdateExisting");
+        Assert.Equal("มี PO (ไม่ระบุเลขที่)", (await client.GetJsonAsync("/api/drawings/NB-06618")).GetProperty("poNo").GetString());
     }
 
     [Fact]
@@ -98,8 +122,8 @@ public class ImportTests : IDisposable
         Assert.Equal(50, result.GetProperty("added").GetInt32());
         Assert.Equal(0, result.GetProperty("errors").GetArrayLength());
         Assert.Equal(0, result.GetProperty("warnings").GetArrayLength());
-        Assert.True((await client.GetJsonAsync("/api/drawings/NB-06618")).GetProperty("hasPo").GetBoolean());
-        Assert.False((await client.GetJsonAsync("/api/drawings/NB-06619")).GetProperty("hasPo").GetBoolean());
+        Assert.Equal("มี PO (ไม่ระบุเลขที่)", (await client.GetJsonAsync("/api/drawings/NB-06618")).GetProperty("poNo").GetString());
+        Assert.Equal("", (await client.GetJsonAsync("/api/drawings/NB-06619")).GetProperty("poNo").GetString());
     }
 
     private static string? FindDocWorkbook()

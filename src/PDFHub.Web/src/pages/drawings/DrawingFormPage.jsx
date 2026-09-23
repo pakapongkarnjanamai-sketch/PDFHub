@@ -19,13 +19,13 @@ import { codeError, normalizeCode, parsePrice, SERVER_FIELD_KEYS, STICKER_HINT, 
 const MAX_PDF_MB = 100
 
 function emptyForm(pdfCode = '', inputDate = todayIso()) {
-  return { pdfCode, partName: '', drawingNo: '', material: '', price: '', inputDate, quoNo: '', remark: '', hasPo: false }
+  return { pdfCode, partName: '', drawingNo: '', material: '', price: '', inputDate, quoNo: '', remark: '', poNo: '' }
 }
 
 function formFrom(d) {
   return {
     pdfCode: d.pdfCode, partName: d.partName, drawingNo: d.drawingNo, material: d.material,
-    price: d.price != null ? String(d.price) : '', inputDate: d.inputDate, quoNo: d.quoNo, remark: d.remark, hasPo: d.hasPo,
+    price: d.price != null ? String(d.price) : '', inputDate: d.inputDate, quoNo: d.quoNo, remark: d.remark, poNo: d.poNo,
   }
 }
 
@@ -234,12 +234,9 @@ function DrawingForm({ drawing, lookups }) {
             <Field label="Price (บาท)" error={errors.price}>{input('price', { inputMode: 'decimal', placeholder: '0.00', className: 'text-right tabular-nums' })}</Field>
             <Field label="Input Date" required error={errors.inputDate}>{input('inputDate', { type: 'date' })}</Field>
             <Field label="Quotation No." error={errors.quoNo}>{input('quoNo', { maxLength: 50 })}</Field>
-            <div className="flex items-end pb-2">
-              <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 sm:min-h-0">
-                <input type="checkbox" checked={form.hasPo} onChange={(e) => patch({ hasPo: e.target.checked })} className="size-4 accent-accent" />
-                <span>Have a PO <span className="text-ink-muted">(ได้รับใบสั่งซื้อแล้ว)</span></span>
-              </label>
-            </div>
+            <Field label="PO No." error={errors.poNo} hint="เลขที่ใบสั่งซื้อจากลูกค้า เว้นว่างถ้ายังไม่ได้รับ PO">
+              {input('poNo', { maxLength: 50, autoComplete: 'off' })}
+            </Field>
             <Field label="Remark" error={errors.remark} className="sm:col-span-2">
               <textarea value={form.remark} rows={2} maxLength={1000} onChange={(e) => patch({ remark: e.target.value })}
                 className={textareaClassName('w-full')} />

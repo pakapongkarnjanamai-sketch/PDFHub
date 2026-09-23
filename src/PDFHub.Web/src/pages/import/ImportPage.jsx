@@ -58,7 +58,7 @@ function ExcelImport() {
 
   return (
     <TitledSection title="1. นำเข้าข้อมูลจาก Excel"
-      description="ใช้ไฟล์ .xlsx รูปแบบเดียวกับชีต NMB-2026 เดิม (มีคอลัมน์ PdfCodeS, PartName, DrawingNo, MatS, Price, InputDate, QuoNo., Remark, Have a PO) หรือไฟล์ที่ Export จากระบบนี้ ระบบนำเข้าทุกชีตที่มีหัวคอลัมน์เหล่านี้ กดตรวจสอบก่อน ข้อมูลจะยังไม่ถูกบันทึกจนกว่าจะกดนำเข้า">
+      description="ใช้ไฟล์ .xlsx รูปแบบเดียวกับชีต NMB-2026 เดิม (มีคอลัมน์ PdfCodeS, PartName, DrawingNo, MatS, Price, InputDate, QuoNo., Remark และ PO No.) หรือไฟล์ที่ Export จากระบบนี้ ไฟล์เดิมที่มีคอลัมน์ Have a PO แบบติ๊ก จะถูกบันทึก PO No. เป็น “มี PO (ไม่ระบุเลขที่)” เพราะไม่มีเลขที่จริง ระบบนำเข้าทุกชีตที่มีหัวคอลัมน์เหล่านี้ กดตรวจสอบก่อน ข้อมูลจะยังไม่ถูกบันทึกจนกว่าจะกดนำเข้า">
       <div className="space-y-4">
         <label className={buttonClassName('secondary', 'md', 'cursor-pointer focus-within:outline-2 focus-within:outline-accent')}>
           <FileSpreadsheet className="size-4" aria-hidden />

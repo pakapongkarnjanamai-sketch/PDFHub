@@ -44,7 +44,11 @@ export const SERVER_FIELD_KEYS = {
   InputDate: 'inputDate',
   QuoNo: 'quoNo',
   Remark: 'remark',
+  PoNo: 'poNo',
   File: 'file',
 }
+
+/** Mirrors PdfCodeRules.PoWithoutNumber: an old "Have a PO" tick that had no number. */
+export const PO_WITHOUT_NUMBER = 'มี PO (ไม่ระบุเลขที่)'
 
 export const STICKER_HINT = 'กรอกเฉพาะรหัสที่มีใน Sticker Minebear เท่านั้น เช่น BL-xxxxx'

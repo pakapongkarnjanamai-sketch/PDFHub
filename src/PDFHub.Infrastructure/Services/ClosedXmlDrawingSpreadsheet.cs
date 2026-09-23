@@ -11,7 +11,7 @@ namespace PDFHub.Infrastructure.Services;
 /// </summary>
 public sealed class ClosedXmlDrawingSpreadsheet : IDrawingSpreadsheet
 {
-    private enum Column { Code, PartName, DrawingNo, Material, Price, InputDate, QuoNo, Remark, HasPo }
+    private enum Column { Code, PartName, DrawingNo, Material, Price, InputDate, QuoNo, Remark, PoNo, LegacyPoTick }
 
     private static readonly Dictionary<string, Column> HeaderNames = new()
     {
@@ -23,15 +23,16 @@ public sealed class ClosedXmlDrawingSpreadsheet : IDrawingSpreadsheet
         ["inputdate"] = Column.InputDate,
         ["quono"] = Column.QuoNo, ["quotationno"] = Column.QuoNo,
         ["remark"] = Column.Remark, ["remarks"] = Column.Remark,
-        ["haveapo"] = Column.HasPo, ["havepo"] = Column.HasPo, ["po"] = Column.HasPo,
+        ["pono"] = Column.PoNo, ["ponumber"] = Column.PoNo, ["po"] = Column.PoNo,
+        ["haveapo"] = Column.LegacyPoTick, ["havepo"] = Column.LegacyPoTick,
     };
 
     private static readonly string[] DateFormats = ["d/M/yyyy", "dd/MM/yyyy", "yyyy-MM-dd", "d-M-yyyy", "d.M.yyyy"];
 
     private static readonly string[] ExportHeaders =
-        ["No.", "PdfCodeS", "Sections", "PartName", "DrawingNo", "MatS", "Price", "Drw.PdfLink", "InputDate", "QuoNo.", "Remark", "Have a PO"];
+        ["No.", "PdfCodeS", "Sections", "PartName", "DrawingNo", "MatS", "Price", "Drw.PdfLink", "InputDate", "QuoNo.", "Remark", "PO No."];
 
-    private static readonly double[] ExportWidths = [7, 11, 13, 30, 20, 12, 11, 16, 12, 14, 32, 10];
+    private static readonly double[] ExportWidths = [7, 11, 13, 30, 20, 12, 11, 16, 12, 14, 32, 16];
 
     public IReadOnlyList<SpreadsheetSheet> Read(Stream xlsx)
     {
@@ -70,7 +71,8 @@ public sealed class ClosedXmlDrawingSpreadsheet : IDrawingSpreadsheet
                     InputDate: dateCell is null ? null : ReadDate(dateCell),
                     QuoNo: Text(Column.QuoNo),
                     Remark: Text(Column.Remark),
-                    Po: Text(Column.HasPo)));
+                    PoNo: Text(Column.PoNo),
+                    LegacyPoTick: Text(Column.LegacyPoTick)));
             }
             sheets.Add(new SpreadsheetSheet(sheet.Name, rows));
         }
@@ -111,14 +113,12 @@ public sealed class ClosedXmlDrawingSpreadsheet : IDrawingSpreadsheet
             sheet.Cell(row, 9).Value = d.InputDate.ToDateTime(TimeOnly.MinValue);
             sheet.Cell(row, 10).Value = d.QuoNo;
             sheet.Cell(row, 11).Value = d.Remark;
-            if (d.HasPo)
-                sheet.Cell(row, 12).Value = "✓";
+            sheet.Cell(row, 12).Value = d.PoNo;
             row++;
         }
 
         sheet.Column(7).Style.NumberFormat.Format = "#,##0.##";
         sheet.Column(9).Style.DateFormat.Format = "dd/mm/yyyy";
-        sheet.Column(12).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
         sheet.Range(2, 1, Math.Max(row - 1, 2), ExportHeaders.Length).SetAutoFilter();
         sheet.SheetView.FreezeRows(2);
 

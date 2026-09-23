@@ -36,6 +36,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IDateTime date
             e.Property(x => x.Price).HasConversion<double?>();
             e.Property(x => x.QuoNo).HasMaxLength(50);
             e.Property(x => x.Remark).HasMaxLength(1000);
+            e.Property(x => x.PoNo).HasMaxLength(50);
             e.Property(x => x.PdfFileName).HasMaxLength(260);
             e.HasIndex(x => x.InputDate);
             e.HasOne(x => x.Section).WithMany().HasForeignKey(x => x.SectionId).OnDelete(DeleteBehavior.Restrict);

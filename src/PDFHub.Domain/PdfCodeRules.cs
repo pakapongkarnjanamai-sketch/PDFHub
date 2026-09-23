@@ -40,5 +40,11 @@ public static class PdfCodeRules
         return number > 99999 ? null : $"{code[..3]}{number:D5}";
     }
 
+    /// <summary>
+    /// Stored for drawings that the old sheet ticked "Have a PO" without a number. Never invent a number:
+    /// this keeps the fact that a PO exists and is easy to find and replace.
+    /// </summary>
+    public const string PoWithoutNumber = "มี PO (ไม่ระบุเลขที่)";
+
     public static string RelativePdfPath(string code) => Path.Combine(code[..2], code + ".pdf");
 }

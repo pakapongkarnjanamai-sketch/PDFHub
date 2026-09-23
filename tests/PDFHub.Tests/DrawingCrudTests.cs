@@ -19,7 +19,7 @@ public class DrawingCrudTests : IDisposable
         inputDate = "2026-08-08",
         quoNo = "Q-001",
         remark = "test",
-        hasPo = true,
+        poNo = "PO-2026-0815",
     };
 
     [Fact]
@@ -97,10 +97,13 @@ public class DrawingCrudTests : IDisposable
         var detail = await client.GetJsonAsync("/api/drawings/nb-06618");
         Assert.Equal(3900m, detail.GetProperty("price").GetDecimal());
         Assert.Equal("2026-08-08", detail.GetProperty("inputDate").GetString());
+        Assert.Equal("PO-2026-0815", detail.GetProperty("poNo").GetString());
 
         var list = await client.GetJsonAsync("/api/drawings?q=peek%20carrier");
         Assert.Equal(1, list.GetProperty("filteredCount").GetInt32());
         Assert.Equal(0, (await client.GetJsonAsync("/api/drawings?q=nothing-matches")).GetProperty("filteredCount").GetInt32());
+        Assert.Equal(1, (await client.GetJsonAsync("/api/drawings?q=PO-2026")).GetProperty("filteredCount").GetInt32());
+        Assert.Equal(0, (await client.GetJsonAsync("/api/drawings?po=no")).GetProperty("filteredCount").GetInt32());
         Assert.Equal(1, (await client.GetJsonAsync("/api/drawings?po=yes&pdf=has&year=2026&section=NB")).GetProperty("filteredCount").GetInt32());
         // Filter options come from the unfiltered set, so they survive an active filter.
         Assert.Equal(13, (await client.GetJsonAsync("/api/drawings?section=XX")).GetProperty("filterOptions").GetProperty("sections").GetArrayLength());

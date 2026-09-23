@@ -22,7 +22,8 @@ public class Drawing : BaseEntity
     public DateOnly InputDate { get; set; }
     public string? QuoNo { get; set; }
     public string? Remark { get; set; }
-    public bool HasPo { get; set; }
+    /// <summary>Purchase order number; null until the customer has sent a PO.</summary>
+    public string? PoNo { get; set; }
 
     /// <summary>Path relative to the PDF storage root; null until a PDF is uploaded.</summary>
     public string? PdfFileName { get; set; }

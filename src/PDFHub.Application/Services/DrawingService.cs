@@ -178,6 +178,7 @@ public sealed class DrawingService(IUnitOfWork uow, IPdfStorage storage, IDrawin
                 EF.Functions.Like(d.Material!, p, "\\") ||
                 EF.Functions.Like(d.QuoNo!, p, "\\") ||
                 EF.Functions.Like(d.Remark!, p, "\\") ||
+                EF.Functions.Like(d.PoNo!, p, "\\") ||
                 EF.Functions.Like(d.Section.Name, p, "\\"));
         }
 
@@ -193,8 +194,8 @@ public sealed class DrawingService(IUnitOfWork uow, IPdfStorage storage, IDrawin
 
         query = f.Po switch
         {
-            "yes" => query.Where(d => d.HasPo),
-            "no" => query.Where(d => !d.HasPo),
+            "yes" => query.Where(d => d.PoNo != null),
+            "no" => query.Where(d => d.PoNo == null),
             _ => query,
         };
 
@@ -225,8 +226,8 @@ public sealed class DrawingService(IUnitOfWork uow, IPdfStorage storage, IDrawin
             ("price", true) => query.OrderBy(d => d.Price == null).ThenByDescending(d => d.Price),
             ("quo", false) => query.OrderBy(d => d.QuoNo),
             ("quo", true) => query.OrderByDescending(d => d.QuoNo),
-            ("po", false) => query.OrderBy(d => d.HasPo),
-            ("po", true) => query.OrderByDescending(d => d.HasPo),
+            ("po", false) => query.OrderBy(d => d.PoNo == null).ThenBy(d => d.PoNo),
+            ("po", true) => query.OrderBy(d => d.PoNo == null).ThenByDescending(d => d.PoNo),
             ("date", false) => query.OrderBy(d => d.InputDate),
             _ => query.OrderByDescending(d => d.InputDate),
         };
@@ -247,7 +248,7 @@ public sealed class DrawingService(IUnitOfWork uow, IPdfStorage storage, IDrawin
         InputDate = d.InputDate,
         QuoNo = d.QuoNo ?? "",
         Remark = d.Remark ?? "",
-        HasPo = d.HasPo,
+        PoNo = d.PoNo ?? "",
         HasPdf = d.PdfFileName != null,
     });
 
@@ -264,7 +265,7 @@ public sealed class DrawingService(IUnitOfWork uow, IPdfStorage storage, IDrawin
         InputDate = d.InputDate,
         QuoNo = d.QuoNo ?? "",
         Remark = d.Remark ?? "",
-        HasPo = d.HasPo,
+        PoNo = d.PoNo ?? "",
         HasPdf = d.PdfFileName != null,
         PdfSize = d.PdfSize,
         PdfUploadedAt = d.PdfUploadedAt,
@@ -320,6 +321,7 @@ public sealed class DrawingService(IUnitOfWork uow, IPdfStorage storage, IDrawin
         if (dto.Price is < 0) errors.Add(nameof(dto.Price), "ราคาต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป");
         if (dto.InputDate is null) errors.Add(nameof(dto.InputDate), "กรุณาระบุวันที่");
         if (dto.QuoNo?.Trim().Length > 50) errors.Add(nameof(dto.QuoNo), "Quotation No. ยาวเกิน 50 ตัวอักษร");
+        if (dto.PoNo?.Trim().Length > 50) errors.Add(nameof(dto.PoNo), "PO No. ยาวเกิน 50 ตัวอักษร");
         if (dto.Remark?.Trim().Length > 1000) errors.Add(nameof(dto.Remark), "Remark ยาวเกิน 1000 ตัวอักษร");
 
         errors.ThrowIfAny();
@@ -337,7 +339,7 @@ public sealed class DrawingService(IUnitOfWork uow, IPdfStorage storage, IDrawin
         d.InputDate = dto.InputDate!.Value;
         d.QuoNo = Clean(dto.QuoNo);
         d.Remark = Clean(dto.Remark);
-        d.HasPo = dto.HasPo;
+        d.PoNo = Clean(dto.PoNo);
     }
 
     private static string? Clean(string? s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();

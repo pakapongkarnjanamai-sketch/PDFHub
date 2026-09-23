@@ -10,6 +10,7 @@ import { pdfUrl } from '../../config/appConfig'
 import { ExternalAction, LinkButton } from '../../components/ui/buttons'
 import { EmptySurface, ErrorSurface, LoadingSurface } from '../../components/ui/feedback'
 import { Page, PageHeader } from '../../components/ui/layout'
+import { PO_WITHOUT_NUMBER } from './drawingRules'
 
 export function DrawingDetailPage() {
   const { code } = useParams()
@@ -40,9 +41,9 @@ export function DrawingDetailPage() {
         status={
           <>
             <span className="rounded-md bg-surface-muted px-2 py-0.5 text-caption font-semibold text-ink-strong">{d.sectionName}</span>
-            {d.hasPo && (
+            {d.poNo && (
               <span className="inline-flex items-center gap-1 rounded-md bg-success-soft px-2 py-0.5 text-caption font-semibold text-success">
-                <Check className="size-3.5" aria-hidden /> มี PO แล้ว
+                <Check className="size-3.5" aria-hidden /> {d.poNo === PO_WITHOUT_NUMBER ? 'มี PO' : `PO ${d.poNo}`}
               </span>
             )}
           </>
@@ -77,7 +78,7 @@ export function DrawingDetailPage() {
             <Row label="Price">{d.price != null ? `${formatPrice(d.price)} บาท` : '—'}</Row>
             <Row label="Input Date">{formatDate(d.inputDate)}</Row>
             <Row label="Quotation No.">{d.quoNo || '—'}</Row>
-            <Row label="Have a PO">{d.hasPo ? 'มี PO แล้ว' : 'ยังไม่มี'}</Row>
+            <Row label="PO No.">{d.poNo || <span className="text-ink-muted">ยังไม่มี PO</span>}</Row>
             <Row label="Remark"><span className="whitespace-pre-wrap">{d.remark || '—'}</span></Row>
           </dl>
           <div className="space-y-0.5 py-3 text-caption text-ink-muted">
