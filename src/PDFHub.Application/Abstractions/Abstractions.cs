@@ -83,3 +83,30 @@ public interface IDrawingSpreadsheet
 
     byte[] Write(IReadOnlyList<DrawingListItemDto> drawings, string title, Func<string, string> pdfUrl);
 }
+
+public sealed record PdfCopyProgress(int Total, int Copied, int Skipped, long BytesCopied);
+
+/// <summary>File work of a manual backup to a folder the admin chooses (local disk, USB drive or network share).</summary>
+public interface IDataBackupStore
+{
+    /// <summary>Server folder of the automatic daily database copies.</summary>
+    string DailyBackupFolder { get; }
+
+    /// <summary>Null when the destination can be written; otherwise a message for the admin.</summary>
+    string? CheckDestination(string destination);
+
+    /// <summary>Writes a consistent copy of the live database; returns its path relative to the destination.</summary>
+    Task<string> SnapshotDatabaseAsync(string destination, DateTime stamp, CancellationToken ct);
+
+    /// <summary>
+    /// Copies PDFs that are new or changed since the last backup to the same destination. Never deletes
+    /// at the destination, so a PDF removed by mistake stays recoverable.
+    /// </summary>
+    Task<PdfCopyProgress> CopyPdfsAsync(string destination, IProgress<PdfCopyProgress> progress, CancellationToken ct);
+}
+
+/// <summary>Runs a started backup in the background, so the admin's request returns immediately.</summary>
+public interface IBackupQueue
+{
+    void Enqueue(int backupRunId);
+}

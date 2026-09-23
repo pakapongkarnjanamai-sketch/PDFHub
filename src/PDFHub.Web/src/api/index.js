@@ -57,6 +57,12 @@ export const usersApi = {
   resetPassword: (id, body) => api.post(`/users/${id}/reset-password`, body),
 }
 
+export const backupsApi = {
+  overview: (signal) => api.get('/backups', { signal }),
+  check: (destination) => api.post('/backups/check', { destination }),
+  start: (destination) => api.post('/backups', { destination }),
+}
+
 export const ROLE_LABELS = {
   Admin: 'ผู้ดูแลระบบ',
   Editor: 'ผู้บันทึกข้อมูล',

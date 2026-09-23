@@ -1,4 +1,4 @@
-import { FileText, FolderUp, Tags, Users } from 'lucide-react'
+import { DatabaseBackup, FileText, FolderUp, Tags, Users } from 'lucide-react'
 
 /**
  * Sidebar groups. `access` is checked against the session: 'all', 'edit' (Admin/Editor) or 'admin'.
@@ -17,6 +17,7 @@ export const NAV_GROUPS = [
     items: [
       { label: 'Section', path: '/sections', icon: Tags, access: 'admin', match: ['/sections'] },
       { label: 'ผู้ใช้งาน', path: '/users', icon: Users, access: 'admin', match: ['/users'] },
+      { label: 'สำรองข้อมูล', path: '/backup', icon: DatabaseBackup, access: 'admin', match: ['/backup'] },
     ],
   },
 ]
@@ -50,6 +51,7 @@ export function getBreadcrumbs(pathname) {
   } else if (first === 'import') crumbs.push({ label: 'นำเข้าข้อมูล', to: '/import' })
   else if (first === 'sections') crumbs.push({ label: 'Section', to: '/sections' })
   else if (first === 'users') crumbs.push({ label: 'ผู้ใช้งาน', to: '/users' })
+  else if (first === 'backup') crumbs.push({ label: 'สำรองข้อมูล', to: '/backup' })
   else if (first === 'account') crumbs.push({ label: 'เปลี่ยนรหัสผ่าน', to: pathname })
   else if (first === 'access-denied') crumbs.push({ label: 'ไม่มีสิทธิ์', to: pathname })
 

@@ -33,7 +33,12 @@ public static class DependencyInjection
         services.AddSingleton<IPdfStorage, FileSystemPdfStorage>();
         services.AddSingleton<IDrawingSpreadsheet, ClosedXmlDrawingSpreadsheet>();
 
+        services.AddScoped<IDataBackupStore, FileSystemDataBackupStore>();
+        services.AddSingleton<BackupQueue>();
+        services.AddSingleton<IBackupQueue>(sp => sp.GetRequiredService<BackupQueue>());
+
         services.AddHostedService<DatabaseBackupWorker>();
+        services.AddHostedService<BackupWorker>();
         return services;
     }
 }

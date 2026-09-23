@@ -12,6 +12,7 @@ const DrawingFormPage = lazyPage(() => import('./pages/drawings/DrawingFormPage'
 const ImportPage = lazyPage(() => import('./pages/import/ImportPage'), 'ImportPage')
 const SectionsPage = lazyPage(() => import('./pages/sections/SectionsPage'), 'SectionsPage')
 const UsersPage = lazyPage(() => import('./pages/users/UsersPage'), 'UsersPage')
+const BackupPage = lazyPage(() => import('./pages/backup/BackupPage'), 'BackupPage')
 
 function guarded(access, element) {
   return (
@@ -34,6 +35,7 @@ export function App() {
         <Route path="import" element={guarded('edit', <ImportPage />)} />
         <Route path="sections" element={guarded('admin', <SectionsPage />)} />
         <Route path="users" element={guarded('admin', <UsersPage />)} />
+        <Route path="backup" element={guarded('admin', <BackupPage />)} />
         <Route path="account/password" element={guarded('auth', <ChangePasswordPage />)} />
         <Route path="access-denied" element={<AccessDeniedPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />

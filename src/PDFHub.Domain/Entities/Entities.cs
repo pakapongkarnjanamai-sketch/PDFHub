@@ -53,3 +53,26 @@ public static class Roles
 
     public static bool CanEdit(string role) => role is Admin or Editor;
 }
+
+public enum BackupStatus
+{
+    Running,
+    Succeeded,
+    Failed,
+}
+
+/// <summary>One manual backup started by an admin from the Backup page.</summary>
+public class BackupRun : BaseEntity
+{
+    public string Destination { get; set; } = string.Empty;
+    public BackupStatus Status { get; set; }
+    public DateTime StartedAt { get; set; }
+    public DateTime? FinishedAt { get; set; }
+    /// <summary>Database snapshot written by this run, relative to <see cref="Destination"/>.</summary>
+    public string? DatabaseFile { get; set; }
+    public int PdfTotal { get; set; }
+    public int PdfCopied { get; set; }
+    public int PdfSkipped { get; set; }
+    public long BytesCopied { get; set; }
+    public string? Error { get; set; }
+}

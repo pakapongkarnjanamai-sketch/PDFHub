@@ -69,6 +69,30 @@ Build machine needs the .NET 10 SDK and Node.js 20+.
    .\scripts\Backup-PDFHubData.ps1 -Destination \\NAS\Backup\PDFHub -Register -At 22:00
    ```
 
+## Manual backup page (Admin → สำรองข้อมูล)
+
+The admin types a folder **on the server** and presses the button; the copy runs in the background.
+Each run writes `<destination>\PDFHub\db\pdfhub-yyyyMMdd-HHmmss.db` (a new consistent copy) and copies
+new or changed PDFs to `<destination>\PDFHub\pdf\`. Nothing at the destination is ever deleted.
+
+The files are written by the app pool identity (`IIS AppPool\PDFHub`), so the destination must allow it:
+
+| Destination | What to set up |
+|---|---|
+| Second disk / USB drive on the server (`E:\PDFHubBackup`) | `icacls E:\PDFHubBackup /grant "IIS AppPool\PDFHub:(OI)(CI)M"` |
+| Network share (`\\NAS01\Backup`) in a domain | Give the server's computer account (`DOMAIN\SERVER$`) Modify on the share and folder |
+| Network share without a domain (workgroup NAS) | The pool identity cannot log on to the NAS. Run the pool as a local user that also exists on the NAS with the same password (IIS → Application Pools → PDFHub → Identity), or back up to a local disk and copy from there with `Backup-PDFHubData.ps1` |
+
+Use **ทดสอบปลายทาง** first: it writes and deletes a test file and names the account that needs access.
+A run in progress when the app restarts is marked failed; start it again.
+
+### Restore
+
+1. Stop the app pool.
+2. Copy the chosen `PDFHub\db\pdfhub-....db` to `<DataRoot>\pdfhub.db` (delete `pdfhub.db-wal` and `pdfhub.db-shm` if present).
+3. Copy `PDFHub\pdf\` back to `<DataRoot>\pdf\`.
+4. Start the app pool.
+
 ## Redeploy
 
 ```powershell

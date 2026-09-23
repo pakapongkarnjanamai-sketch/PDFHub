@@ -12,6 +12,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IDateTime date
     public DbSet<Section> Sections => Set<Section>();
     public DbSet<Drawing> Drawings => Set<Drawing>();
     public DbSet<AppUser> Users => Set<AppUser>();
+    public DbSet<BackupRun> BackupRuns => Set<BackupRun>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -48,6 +49,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IDateTime date
             e.Property(x => x.Role).HasMaxLength(20);
             e.Property(x => x.PasswordHash).HasMaxLength(200);
             e.Property(x => x.SecurityStamp).HasMaxLength(64);
+        });
+
+        b.Entity<BackupRun>(e =>
+        {
+            e.Property(x => x.Destination).HasMaxLength(500).IsRequired();
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+            e.Property(x => x.DatabaseFile).HasMaxLength(500);
+            e.Property(x => x.Error).HasMaxLength(2000);
+            e.HasIndex(x => x.StartedAt);
         });
     }
 
